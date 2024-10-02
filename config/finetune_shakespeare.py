@@ -1,25 +1,40 @@
-import time
+# train a miniature character-level shakespeare model
+# good for debugging and playing on macbooks and such
+# on macbook also add
+device = 'cpu'  # run on cpu only
+compile = False # do not torch compile the model
 
-out_dir = 'out-shakespeare'
-eval_interval = 5
-eval_iters = 40
-wandb_log = False # feel free to turn on
-wandb_project = 'shakespeare'
-wandb_run_name = 'ft-' + str(time.time())
+out_dir = 'out-shakespeare-char-66396'
+eval_interval = 250 # keep frequent because we'll overfit
+eval_iters = 20
+log_interval = 100 # don't print too too often
 
-dataset = 'shakespeare'
-init_from = 'gpt2-xl' # this is the largest GPT-2 model
-
-# only save checkpoints if the validation loss improves
+# we expect to overfit on this small dataset, so only save when val improves
 always_save_checkpoint = False
 
-# the number of examples per iter:
-# 1 batch_size * 32 grad_accum * 1024 tokens = 32,768 tokens/iter
-# shakespeare has 301,966 tokens, so 1 epoch ~= 9.2 iters
-batch_size = 1
-gradient_accumulation_steps = 32
-max_iters = 20
+wandb_log = False # override via command line if you like
+wandb_project = 'shakespeare-char'
+wandb_run_name = 'mini-gpt'
 
-# finetune at constant LR
-learning_rate = 3e-5
-decay_lr = False
+dataset = 'allic_in_wdld'
+init_from = 'resume'
+gradient_accumulation_steps = 1
+batch_size = 12
+# context of up to 256 previous characters
+block_size = 64
+
+
+# baby GPT model :)
+n_layer = 6
+n_head = 6
+n_embd = 396
+dropout = 0.2
+
+learning_rate = 1e-3 # with baby networks can afford to go a bit higher
+max_iters = 3000
+lr_decay_iters = 3000 # make equal to max_iters usually
+
+
+warmup_iters = 100 # not super necessary potentially
+
+

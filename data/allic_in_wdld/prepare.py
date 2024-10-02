@@ -10,7 +10,7 @@ import requests
 import numpy as np
 
 # download the tiny shakespeare dataset
-input_file_path = os.path.join(os.path.dirname(__file__), 'input.txt')
+input_file_path = os.path.join(os.path.dirname(__file__), 'alice_in_wonderland.txt')
 # if not os.path.exists(input_file_path):
 #     data_url = 'https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt'
 #     with open(input_file_path, 'w') as f:
@@ -20,11 +20,19 @@ with open(input_file_path, 'r') as f:
     data = f.read()
 print(f"length of dataset in characters: {len(data):,}")
 
+# Check if the input file exists and is not empty
+if not os.path.exists(input_file_path) or os.path.getsize(input_file_path) == 0:
+    raise FileNotFoundError(f"Input file {input_file_path} is missing or empty.")
+
+# Filter the dataset to include only the specified characters
+filtered_data = ''.join(c for c in data if c in "!$&',-.3:;?ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
+print(f"length of filtered dataset in characters: {len(filtered_data):,}")
+
 # get all the unique characters that occur in this text
-chars = sorted(list(set(data)))
+chars = sorted(list(set(filtered_data)))
 vocab_size = len(chars)
 print("all the unique characters:", ''.join(chars))
-print(f"vocab size: {vocab_size:,}")
+print(f"vocab size: {vocab_size:,}")  # Should match model's expected vocab size
 
 # create a mapping from characters to integers
 stoi = { ch:i for i,ch in enumerate(chars) }
@@ -35,13 +43,20 @@ def decode(l):
     return ''.join([itos[i] for i in l]) # decoder: take a list of integers, output a string
 
 # create the train and test splits
-n = len(data)
-train_data = data[:int(n*0.9)]
-val_data = data[int(n*0.9):]
+n = len(filtered_data)
+train_data = filtered_data[:int(n*0.9)]
+val_data = filtered_data[int(n*0.9):]
 
-# encode both to integers
+# Encode both to integers
 train_ids = encode(train_data)
 val_ids = encode(val_data)
+
+# Check for any out-of-range indices
+if any(id >= vocab_size for id in train_ids):
+    raise ValueError("Found out-of-range index in training data.")
+if any(id >= vocab_size for id in val_ids):
+    raise ValueError("Found out-of-range index in validation data.")
+
 print(f"train has {len(train_ids):,} tokens")
 print(f"val has {len(val_ids):,} tokens")
 
@@ -57,6 +72,7 @@ meta = {
     'itos': itos,
     'stoi': stoi,
 }
+
 with open(os.path.join(os.path.dirname(__file__), 'meta.pkl'), 'wb') as f:
     pickle.dump(meta, f)
 
