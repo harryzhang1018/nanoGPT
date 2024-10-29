@@ -1,0 +1,13 @@
+name: nanogpt 
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.9  # Python version compatible with dependencies
+  - pytorch<3
+  - numpy<3
+  - transformers<3
+  - datasets<3
+  - tiktoken<3
+  - wandb<3
+  - tqdm
