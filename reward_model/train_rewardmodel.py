@@ -60,10 +60,11 @@ def train_reward_model(training_data, model_name, num_epochs=10, learning_rate=0
 
 # Example usage
 model_name = 'distilbert-base-uncased'  # Define the transformer model name
-num_epochs = 100  # Increase the number of epochs to allow better learning
-learning_rate = 0.0001  # Reduce the learning rate to improve convergence
+num_epochs = 50  # Increase the number of epochs to allow better learning
+learning_rate = 0.00005  # Reduce the learning rate to improve convergence
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print(f"Training on device: {device}")
 
 # Load the json file
 data_file_path = '/home/harry/grad_class/nanoGPT/reward_model/data/labeledData.json'
@@ -117,10 +118,10 @@ def get_reward_score(sentence, reward_model):
 
 
 # Example usage
-sentence = "BENVOLIO:\nAy, we take her better for this fool.\nROMEO:\nHere comes me, get him here no more.\nNurse:\nWhy shall we speak? what, without off this?"
-score = get_reward_score(sentence, trained_reward_model)
-print(f"Reward score for the short sentence: {score}")
+shakespeare_sentence = "BENVOLIO:\nAy, we take her better for this fool.\nROMEO:\nHere comes me, get him here no more.\nNurse:\nWhy shall we speak? what, without off this?"
+sscore = get_reward_score(shakespeare_sentence, trained_reward_model)
+print(f"Reward score for the Shakespeare sentence: {sscore*(max_reward - min_reward) + min_reward}")
 
-sentence = "The ancient ruins stood silent on the mountaintop, weathered by centuries of wind and rain, holding secrets long forgotten, waiting for someone brave enough to unlock the mysteries hidden within their stones."
-score = get_reward_score(sentence, trained_reward_model)
-print(f"Reward score for the long sentence: {score}")
+normal_sentence = "Welcome to ChatGPT, an advanced language model developed by OpenAI. This conversational AI can assist you in a wide range of tasks—answering questions, brainstorming ideas, providing recommendations, helping with coding, and much more."
+nscore = get_reward_score(normal_sentence, trained_reward_model)
+print(f"Reward score for the normal sentence: {nscore*(max_reward - min_reward) + min_reward}")
